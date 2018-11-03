@@ -201,6 +201,7 @@ module.exports = function (app, db) {
   //64
   function castToHexParamsForString(hexParam){
     var hex = hexParam+'';
+    hex = hex.substring(2);//remove 0x
     var missing = 64 - hex.length;
     if (missing <= 0)
       return hex;
@@ -213,6 +214,7 @@ module.exports = function (app, db) {
 
   function castToHexParamsForDecimal(hexParam){
     var hex = hexParam+'';
+    hex = hex.substring(2);
     var missing = 64 - hex.length;
     if (missing <= 0)
       return hex;
