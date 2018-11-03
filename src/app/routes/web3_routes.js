@@ -1,7 +1,7 @@
 const Web3 = require('web3');
 const smartcarabi = require('./../contracts/smartCar.js').abi;
 const bin = require('./../contracts/smartCar.js').bin;
-var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+var web3 = new Web3(new Web3.providers.HttpProvider(require('./../../../config/gethConfig').url));
 
 module.exports = function (app, db) {
 
@@ -30,12 +30,10 @@ module.exports = function (app, db) {
     res.send({ result: balance })
   });
 
-
   app.post('/getBalanceInEther', (req, res) => {
     var balance = web3.fromWei(web3.eth.getBalance(req.body.account));
     res.send({ result: balance })
   });
-
 
   app.post('/getAccounts', (req, res) => {
     var accounts = web3.eth.accounts;
@@ -47,13 +45,11 @@ module.exports = function (app, db) {
     res.send({ result: result })
   });
 
-
   app.post('/account/create', (req, res) => {
     var result = web3.personal.newAccount(req.body.pass, function (err, res) { console.log("error" + err); console.log("res" + res); });
     res.send({ result: result })
   });
-
-
+  
   app.post('/ether/send', (req, res) => {
     var result = web3.eth.sendTransaction({
       from: req.body.from,
@@ -63,8 +59,6 @@ module.exports = function (app, db) {
     res.send({ result: result })
   });
 
-
-
   app.post('/transactions/receipt', (req, res) => {
     var result = web3.eth.getTransactionReceipt(req.body.hash);
     res.send({ result: result })
@@ -73,7 +67,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/carValue', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.carValue();
     res.send({ result: result })
   });
@@ -81,7 +74,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/carSigner', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.carSigner();
     res.send({ result: result })
   });
@@ -89,7 +81,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/licensePlate', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.licensePlate();
     res.send({ result: result })
   });
@@ -97,7 +88,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/owners', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.owners();
     res.send({ result: result })
   });
@@ -105,7 +95,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/ownersBalance', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.ownersBalance(req.body.account);
     res.send({ result: result })
   });
@@ -113,7 +102,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/balanceToDistribute', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.balanceToDistribute();
     res.send({ result: result })
   });
@@ -121,7 +109,6 @@ module.exports = function (app, db) {
   app.post('/contract/smartcar/function/carShares', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-
     var result = stringHolder.carShares(stringHolder.owners());
     res.send({ result: result })
   });
@@ -132,7 +119,6 @@ module.exports = function (app, db) {
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);   
     var arr = req.body.addresses.split(',');     
     var result = stringHolder.setOwners(arr, {from: req.body.account, gas: 1000000});
-
     res.send({ result: result });
   });
 
@@ -140,9 +126,7 @@ module.exports = function (app, db) {
     var methodSignature = web3.eth.abi.encodeFunctionSignature("setOwners(address[] _owners)");
     var messageHex = web3.fromAscii(message, 32);
     var encodedParameter = web3.eth.abi.encodeParameter("address[]", messageHex);
-    var data = methodSignature //method signature
-    + encodedParameter.substring(2); //hex of input string without '0x' prefix
-
+    var data = methodSignature  + encodedParameter.substring(2); 
     web3.eth.estimateGas({
       from: req.body.account, 
       data: data,
@@ -159,7 +143,6 @@ module.exports = function (app, db) {
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
-
     var result = stringHolder.purchaseShare(req.body.value,{from: req.body.account, gas: 1000000});
     res.send({ result: result })
   });
@@ -170,28 +153,6 @@ module.exports = function (app, db) {
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
     var uselessWorker = contract.new({ from: req.body.account, data: binWithParams, gas: 1000000 });
     res.send({ result: uselessWorker.transactionHash, contract: contract.options });    
-  });
-
-  app.post('/mongo/contracts/add', (req, res) => {
-    const contract = { text: req.body.transactionHash, title: req.body.contractName };
-    db.collection('contracts').insert(contract, (err, result) => {
-      if (err) {
-        res.send({ 'error': 'An error has occurred. ' + err });
-      } else {
-        res.send(result.ops[0]);
-      }
-    });
-  });
-
-  app.post('/mongo/errors/add', (req, res) => {
-    const error = { text: req.body.name, title: req.body.text };
-    db.collection('errors').insert(error, (err, result) => {
-      if (err) {
-        res.send({ 'error': 'An error has occurred. ' + err });
-      } else {
-        res.send(result.ops[0]);
-      }
-    });
   });
 
   //64
@@ -227,24 +188,5 @@ module.exports = function (app, db) {
   
   function decimalToHex(dec){
     return web3.fromDecimal(dec, 32);
-  }
-
-  app.post('/mongo/test', (req, res) => {
-    SendPostRequest(req.body.arg1, req.body.arg2);
-    res.send({ result: 'ok' })
-  });
-
-  function SendPostRequest(arg1, arg2) {
-    var request = require('request');
-
-    request.post(
-      'http://178.62.249.252:9000/mongo/contracts/add',
-      { json: { transactionHash: String(arg1), contractName: String(arg2) } },
-      function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          console.log(body)
-        }
-      }
-    );
   }
 }
