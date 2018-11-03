@@ -164,14 +164,8 @@ module.exports = function (app, db) {
     res.send({ result: result })
   });
 
-  app.post('/contract/smartcar/create', (req, res) => {
-    //"0x783130357975313734" - x105yu174
-    //value "1000000000000000"
-    //var paramsInHex = "783130357975313734000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000038d7ea4c68000";       
-    var paramsInHex = castToHexParamsForString(stringToHex(req.body.licenseplate))+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
-    console.log(paramsInHex);
-
-    var binWithParams = bin+paramsInHex;
+  app.post('/contract/smartcar/create', (req, res) => {        
+    var binWithParams = bin+castToHexParamsForString(stringToHex(req.body.licenseplate))+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
     var contract = web3.eth.contract(smartcarabi);
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
     var uselessWorker = contract.new({ from: req.body.account, data: binWithParams, gas: 1000000 });
