@@ -168,7 +168,9 @@ module.exports = function (app, db) {
     //"0x783130357975313734" - x105yu174
     //value "1000000000000000"
     //var paramsInHex = "783130357975313734000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000038d7ea4c68000";       
-    var paramsInHex = castToHexParamsForString(req.licenseplate)+castToHexParamsForDecimal(req.carvalue);
+    var paramsInHex = castToHexParamsForString(stringToHex(req.body.licenseplate))+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
+    console.log(paramsInHex);
+
     var binWithParams = bin+paramsInHex;
     var contract = web3.eth.contract(smartcarabi);
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
@@ -223,6 +225,14 @@ module.exports = function (app, db) {
       hex = '0'+hex;
     }         
     return hex;
+  }
+
+  function stringToHex(str){
+    return web3.fromAscii(str, 32);
+  }
+  
+  function decimalToHex(dec){
+    return web3.fromDecimal(dec, 32);
   }
 
   app.post('/mongo/test', (req, res) => {
