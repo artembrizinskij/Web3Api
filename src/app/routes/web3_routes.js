@@ -122,30 +122,22 @@ module.exports = function (app, db) {
     res.send({ result: result });
   });
 
-  app.post('/contract/smartcar/function/estimateGas', (req, res) => {      
-    var methodSignature = web3.eth.abi.encodeFunctionSignature("setOwners(address[] _owners)");
-    var messageHex = web3.fromAscii(message, 32);
-    var encodedParameter = web3.eth.abi.encodeParameter("address[]", messageHex);
-    var data = methodSignature  + encodedParameter.substring(2); 
-    web3.eth.estimateGas({
-      from: req.body.account, 
-      data: data,
-      to: req.body.address
-  }, function(err, estimatedGas) {
-    if (err) console.log(err);
-    console.log(estimatedGas);
-    res.send({ result: estimatedGas })
-    cb(estimatedGas, err);
-  });
-  });
-
-  app.post('/contract/smartcar/function/purchaseShare', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
-    var result = stringHolder.purchaseShare(req.body.value,{from: req.body.account, gas: 1000000});
-    res.send({ result: result })
-  });
+  // app.post('/contract/smartcar/function/estimateGas', (req, res) => {      
+  //   var methodSignature = web3.eth.abi.encodeFunctionSignature("setOwners(address[] _owners)");
+  //   var messageHex = web3.fromAscii(message, 32);
+  //   var encodedParameter = web3.eth.abi.encodeParameter("address[]", messageHex);
+  //   var data = methodSignature  + encodedParameter.substring(2); 
+  //   web3.eth.estimateGas({
+  //     from: req.body.account, 
+  //     data: data,
+  //     to: req.body.address
+  // }, function(err, estimatedGas) {
+  //   if (err) console.log(err);
+  //   console.log(estimatedGas);
+  //   res.send({ result: estimatedGas })
+  //   cb(estimatedGas, err);
+  // });
+  // });
 
   app.post('/contract/smartcar/create', (req, res) => {        
     var binWithParams = bin+castToHexParamsForString(stringToHex(req.body.licenseplate))+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
