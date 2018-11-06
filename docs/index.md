@@ -24,7 +24,7 @@ If geth run on other server change localhost into
   >Go to `cd src/`
   Run `node server.js`
   
-  *If all goes well, the console displays a message* `Up on port:9000`
+  *If all goes well, the console displays a message* `Listening on port:<your-port(default is 9000)>`
   
   
   
