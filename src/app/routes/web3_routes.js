@@ -46,7 +46,7 @@ module.exports = function (app, db) {
   });
 
   app.post('/account/create', (req, res) => {
-    var result = web3.personal.newAccount(req.body.pass, function (err, res) { console.log("error" + err); console.log("res" + res); });
+    var result = web3.personal.newAccount(req.body.pass/*, function (err, res) { console.log("error" + err); console.log("res" + res); }*/);
     res.send({ result: result })
   });
   
