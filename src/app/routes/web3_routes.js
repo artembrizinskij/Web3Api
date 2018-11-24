@@ -78,69 +78,31 @@ module.exports = function (app, db) {
     res.send({ result: result })
   });
 
-  app.post('/contract/smartcar/function/licensePlate', (req, res) => {    
+  app.post('/contract/smartcar/function/getResidualValue', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-    var result = stringHolder.licensePlate();
+    var result = stringHolder.getResidualValue();
     res.send({ result: result })
   });
 
-  app.post('/contract/smartcar/function/owners', (req, res) => {    
+  app.post('/contract/smartcar/function/getBalance', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
-    var result = stringHolder.owners();
-    res.send({ result: result })
-  });
-
-  app.post('/contract/smartcar/function/ownersBalance', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    var result = stringHolder.ownersBalance(req.body.account);
-    res.send({ result: result })
-  });
-
-  app.post('/contract/smartcar/function/balanceToDistribute', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    var result = stringHolder.balanceToDistribute();
-    res.send({ result: result })
-  });
-
-  app.post('/contract/smartcar/function/carShares', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    var result = stringHolder.carShares(stringHolder.owners());
-    res.send({ result: result })
-  });
-
-  app.post('/contract/smartcar/function/setOwners', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);   
-    var arr = req.body.addresses.split(',');     
-    var result = stringHolder.setOwners(arr, {from: req.body.account, gas: 1000000});
+    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);         
+    var result = stringHolder.getBalance();
     res.send({ result: result });
   });
 
-  // app.post('/contract/smartcar/function/estimateGas', (req, res) => {      
-  //   var methodSignature = web3.eth.abi.encodeFunctionSignature("setOwners(address[] _owners)");
-  //   var messageHex = web3.fromAscii(message, 32);
-  //   var encodedParameter = web3.eth.abi.encodeParameter("address[]", messageHex);
-  //   var data = methodSignature  + encodedParameter.substring(2); 
-  //   web3.eth.estimateGas({
-  //     from: req.body.account, 
-  //     data: data,
-  //     to: req.body.address
-  // }, function(err, estimatedGas) {
-  //   if (err) console.log(err);
-  //   console.log(estimatedGas);
-  //   res.send({ result: estimatedGas })
-  //   cb(estimatedGas, err);
-  // });
-  // });
+  app.post('/contract/smartcar/function/buyCarShares', (req, res) => {    
+    var contract = web3.eth.contract(smartcarabi);
+    var stringHolder = contract.at(req.body.address);
+    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);         
+    var result = stringHolder.buyCarShares(req.body.amount,{ from: req.body.account, data: binWithParams, gas: 1000000 });
+    res.send({ result: result });
+  });
 
   app.post('/contract/smartcar/create', (req, res) => {        
-    var binWithParams = bin+castToHexParamsForString(stringToHex(req.body.licenseplate))+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
+    var binWithParams = bin+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
     var contract = web3.eth.contract(smartcarabi);
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);
     var uselessWorker = contract.new({ from: req.body.account, data: binWithParams, gas: 1000000 });
