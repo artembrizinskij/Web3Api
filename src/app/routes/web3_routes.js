@@ -97,7 +97,7 @@ module.exports = function (app, db) {
     var contract = web3.eth.contract(smartcarabi);
     var stringHolder = contract.at(req.body.address);
     web3.personal.unlockAccount(req.body.account, req.body.pass, 600);         
-    var result = stringHolder.buyCarShares(req.body.amount,{ from: req.body.account, data: bin, gas: 1000000 });
+    var result = stringHolder.buyCarShares(req.body.amount,req.body.account,{ from: req.body.account, data: bin, gas: 1000000 });
     res.send({ result: result });
   });
 
