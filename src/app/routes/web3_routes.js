@@ -87,8 +87,7 @@ module.exports = function (app, db) {
 
   app.post('/contract/smartcar/function/getBalance', (req, res) => {    
     var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);         
+    var stringHolder = contract.at(req.body.address);          
     var result = stringHolder.getBalance(req.body.account);
     res.send({ result: result });
   });
