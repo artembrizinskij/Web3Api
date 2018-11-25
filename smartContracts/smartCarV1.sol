@@ -4,36 +4,34 @@ pragma solidity ^0.5.0;
 contract HereYouGoDonkeyCar {
   
   address public carSigner;
-  uint public carValue;
-  //address[] public depositors;
-  uint public balanceToDistribute;
-  mapping (address => uint) public balances;
+  uint public carValueUsd;
+  uint balanceToDistribute;
   
-  event Sent(address from, address to, uint amount);
-  event LogDepositors(address depositor, uint amount);
+  mapping (address => uint) balances;
 
-  constructor(uint _carValue) public {
-    require(_carValue > 0);
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+  constructor(uint _carValueUsd) public {
+    require(_carValueUsd > 0);
     carSigner = msg.sender;
-    carValue = _carValue;
-    balanceToDistribute = carValue;
+    carValueUsd = _carValueUsd;
+    balanceToDistribute = carValueUsd;
   }
 
-  function getResidualValue() view public returns (uint value){
+  function getResidualValue() view public returns (uint){
       return balanceToDistribute;
   }
-
-  function getBalance() view public returns(uint value){
-      return balances[msg.sender];
+    
+  function getBalance(address _account) view public returns(uint){
+      return balances[_account];
   }
 
-  function buyCarShares(uint _depositAmount) public {
-    require(_depositAmount > 0 && _depositAmount < balanceToDistribute);
-    if (balances[msg.sender] < _depositAmount) return;
-    balances[msg.sender] -= _depositAmount;
-    balances[carSigner] += _depositAmount;
-    balanceToDistribute -= _depositAmount;
-    emit Sent(msg.sender, carSigner, _depositAmount);
-    emit LogDepositors(msg.sender, _depositAmount);
+  function buyCarShares(uint _depositAmountUsd, uint _depositAmountWei, address _account) public {
+    require(_depositAmountUsd > 0 && _depositAmountUsd < balanceToDistribute);
+    if (msg.sender.balance < _depositAmountWei) return;
+    balances[_account] += _depositAmountUsd;
+    balanceToDistribute -= _depositAmountUsd;
+    emit Transfer(msg.sender, carSigner, _depositAmountWei);
   }
+
 }
