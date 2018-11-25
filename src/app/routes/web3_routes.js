@@ -101,21 +101,6 @@ module.exports = function (app, db) {
     res.send({ result: result });
   });
 
-  app.post('/contract/smartcar/function/getMapIndex', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);    
-    var result = stringHolder.getMapIndex(req.body.account);
-    res.send({ result: result });
-  });
-
-  app.post('/contract/smartcar/function/setMapIndex', (req, res) => {    
-    var contract = web3.eth.contract(smartcarabi);
-    var stringHolder = contract.at(req.body.address);
-    web3.personal.unlockAccount(req.body.account, req.body.pass, 600);    
-    var result = stringHolder.setMapIndex(2,req.body.account,{ from: req.body.account, data: bin, gas: 1000000 });
-    res.send({ result: result });
-  });
-
   app.post('/contract/smartcar/create', (req, res) => {        
     var binWithParams = bin+castToHexParamsForDecimal(decimalToHex(req.body.carvalue));
     var contract = web3.eth.contract(smartcarabi);
